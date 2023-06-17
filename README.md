@@ -12,6 +12,12 @@ in the request.
 
 Access tokens are short-lived, so a new client should be created for each request.
 
+### Install
+
+```bash
+go get github.com/theboarderline/vertex-client
+```
+
 ### Usage
 
 Authenticate with user GCP credentials
