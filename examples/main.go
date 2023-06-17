@@ -8,10 +8,11 @@ import (
 func main() {
 	client := vertexai.NewClient()
 
-	prompt := "Who do most people consider to be the best basketball player of all time"
-	maxTokens := 20
+	request := vertexai.ChatRequest{
+		Prompt: "Who do most people consider to be the best basketball player of all time",
+	}
 
-	response, err := client.ChatResponse(prompt, maxTokens)
+	response, err := client.ChatResponse(request)
 	if err != nil {
 		log.Printf("unable to get vertex response: %s", err.Error())
 	} else {

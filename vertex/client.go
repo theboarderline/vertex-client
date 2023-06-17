@@ -41,31 +41,31 @@ func (c Client) FormatVertexAPIURL(modelID string) string {
 	return fmt.Sprintf("https://%s/v1/projects/%s/locations/us-central1/publishers/google/models/%s:predict", API_ENDPOINT, c.ProjectID, modelID)
 }
 
-func (c Client) ChatResponse(prompt string, maxTokens int, modelIDs ...string) (string, error) {
+type ChatRequest struct {
+	Prompt     string
+	ModelID    string
+	Parameters []Parameter
+}
 
-	var modelID string
-	if len(modelID) == 0 {
-		modelID = BISON_MODEL_ID
-	} else {
-		modelID = modelIDs[0]
+func (c Client) ChatResponse(req ChatRequest) (string, error) {
+
+	if req.ModelID == "" {
+		req.ModelID = BISON_MODEL_ID
+	}
+
+	if len(req.Parameters) == 0 {
+		req.Parameters = []Parameter{DEFAULT_PARAMETER}
 	}
 
 	request := Request{
-		Instances: []Instance{{Prefix: prompt}},
-		Parameters: []Parameter{
-			{
-				MaxOutputTokens: maxTokens,
-				Temperature:     1,
-				TopP:            0,
-				TopK:            40,
-			},
-		},
+		Instances:  []Instance{{Prefix: req.Prompt}},
+		Parameters: req.Parameters,
 	}
 
 	response, err := c.httpClient.R().
 		SetAuthToken(c.AccessToken).
 		SetBody(request).
-		Post(c.FormatVertexAPIURL(modelID))
+		Post(c.FormatVertexAPIURL(req.ModelID))
 
 	if err != nil {
 		log.Err(err).Msg("could not get messages from groupme api")
