@@ -1,48 +1,12 @@
-**/*.sqlite3
-**/source.sh
-**/var/
-**/.terraform*
-**/build/
-**/secrets/
-**/cloud_sql_proxy
-**/service-accounts/
-**/.DS_Store
 
-envs/gcp.sh
+**/.idea
+**/main
+**/rambler-api
 
-**/Chart.lock
+**/.env
 
-**/media/
-**/js/
-**/yarn-error.log
-**/react-devtools/
+**/*.sqlite
 
-# Python
-**/*.pyc
-**/__pycache__
-**/*.egg-info*
-**/dist/
-**/env/
-**/venv/
-**/venv3/
-**/.pytest_cache
-**/.idea/
-
-# JavaScript
-**/node_modules/
-
-
-# Virtual Machine
-**/.vagrant/
-
-# Text editors and IDEs
-**/*~
-**/*.swp
-**/.vscode
-**/.ropeproject/
-**/.vscode/
-
-# Google drive and dropbox
-**/Icon
-**/.dropbox*
-
+**/cov
+**/coverage.out
+**/coverprofile.out
