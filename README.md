@@ -10,6 +10,8 @@ the API Client will automatically use the credentials
 from the environment to create an access token to be used
 in the request.
 
+Access tokens are short-lived, so a new client should be created for each request.
+
 ### Usage
 
 Authenticate with user GCP credentials
@@ -17,6 +19,9 @@ Authenticate with user GCP credentials
 ```bash
 gcloud auth application-default login
 ```
+
+### IAM
+- Requires Vertex AI User Role - [Vertex AI IAM](https://cloud.google.com/vertex-ai/docs/general/access-control)
 
 ### Example
 
@@ -29,7 +34,11 @@ import (
 )
 
 func main() {
-	client := vertexai.NewClient()
+	client := vertexai.NewClient() // uses environment variable GCP_PROJECT_ID
+	
+	// or
+
+	client = vertexai.NewClient("PROJECT_ID") // pass in project id
 
 	prompt := "Who do most people consider to be the best basketball player of all time"
 	maxTokens := 20
