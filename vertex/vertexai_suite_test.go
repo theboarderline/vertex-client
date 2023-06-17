@@ -1,7 +1,7 @@
 package vertexai_test
 
 import (
-	"github.com/theboarderline/rambler/api/src/config"
+	"github.com/joho/godotenv"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -10,6 +10,7 @@ import (
 
 func TestVertexai(t *testing.T) {
 	RegisterFailHandler(Fail)
-	config.Init()
+	godotenv.Load("../.env")
+
 	RunSpecs(t, "Vertexai Suite")
 }
