@@ -7,7 +7,7 @@ import (
 )
 
 var _ = Describe("Vertexai", func() {
-	It("can get a comment for repeat bot using vertex AI", func() {
+	It("can get a comment using vertex AI", func() {
 		client := vertexai.NewClient()
 		req := vertexai.ChatRequest{
 			Prompt:  "I am a bot",
