@@ -7,7 +7,11 @@ import (
 
 func main() {
 	client := vertexai.NewClient()
-	response, err := client.ChatResponse("Who do most people consider to be the best basketball player of all time", 20)
+
+	prompt := "Who do most people consider to be the best basketball player of all time"
+	maxTokens := 20
+
+	response, err := client.ChatResponse(prompt, maxTokens)
 	if err != nil {
 		log.Printf("unable to get vertex response: %s", err.Error())
 	} else {

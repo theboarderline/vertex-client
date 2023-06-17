@@ -24,17 +24,22 @@ gcloud auth application-default login
 package main
 
 import (
-	"github.com/rs/zerolog/log"
 	vertexai "github.com/theboarderline/vertex-client/vertex"
+	"log"
 )
 
 func main() {
 	client := vertexai.NewClient()
-	response, err := client.ChatResponse("Who do most people consider to be the best basketball player of all time", 20)
+
+	prompt := "Who do most people consider to be the best basketball player of all time"
+	maxTokens := 20
+
+	response, err := client.ChatResponse(prompt, maxTokens)
 	if err != nil {
-		log.Err(err).Msg("unable to get vertex response")
+		log.Printf("unable to get vertex response: %s", err.Error())
 	} else {
-		log.Info().Msgf("Vertex Response: %s", response)
+		log.Printf("Vertex Response: %s", response)
 	}
 }
+
 ```
