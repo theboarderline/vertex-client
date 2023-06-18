@@ -42,6 +42,7 @@ func (c Client) FormatVertexAPIURL(modelID string) string {
 }
 
 type ChatRequest struct {
+	Debug      bool
 	Prompt     string
 	ModelID    string
 	Parameters []Parameter
@@ -61,20 +62,26 @@ func (c Client) ChatResponse(req ChatRequest) (string, error) {
 		Instances:  []Instance{{Prefix: req.Prompt}},
 		Parameters: req.Parameters,
 	}
+	url := c.FormatVertexAPIURL(req.ModelID)
+
+	if req.Debug {
+		log.Debug().Msgf("vertexai api url: %s", url)
+		log.Debug().Msgf("vertexai request: %+v", request)
+	}
 
 	response, err := c.httpClient.R().
 		SetAuthToken(c.AccessToken).
 		SetBody(request).
-		Post(c.FormatVertexAPIURL(req.ModelID))
+		Post(url)
 
 	if err != nil {
-		log.Err(err).Msg("could not get messages from groupme api")
+		log.Err(err).Msg("could not get response from vertex api")
 		return "", err
 	}
 
 	var res Response
 	if err = json.Unmarshal(response.Body(), &res); err != nil {
-		log.Err(err).Msg("could not unmarshal response from groupme api")
+		log.Err(err).Msg("could not unmarshal response from vertex ai api")
 		return "", err
 	}
 
@@ -82,6 +89,10 @@ func (c Client) ChatResponse(req ChatRequest) (string, error) {
 		err = errors.New("no predictions returned")
 		log.Err(err)
 		return "", err
+	}
+
+	if req.Debug {
+		log.Debug().Msgf("vertexai response: %+v", res)
 	}
 
 	return res.Predictions[0].Content, nil
