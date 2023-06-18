@@ -21,13 +21,16 @@ func NewClient(projectIDs ...string) *Client {
 	var projectID string
 	if len(projectID) == 0 {
 		projectID = os.Getenv("GCP_PROJECT_ID")
+		if projectID == "" {
+			log.Fatal().Err(errors.New("GCP_PROJECT_ID not set"))
+		}
 	} else {
 		projectID = projectIDs[0]
 	}
 
 	accessToken, err := getAccessToken()
 	if err != nil {
-		log.Err(err).Msg("could not get access token")
+		log.Fatal().Err(err).Msg("could not get access token")
 	}
 
 	return &Client{
