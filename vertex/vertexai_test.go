@@ -37,9 +37,12 @@ var _ = Describe("Vertexai", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		req := vertexai.ChatRequest{
-			Prompt:    "Come up with a funny joke",
-			ModelID:   vertexai.BISON_TEXT_MODEL_ID,
-			Instances: []vertexai.Instance{{Prefix: "Q: What do you call a fake noodle?"}},
+			ModelID: vertexai.BISON_TEXT_MODEL_ID,
+			Instances: []vertexai.Instance{
+				{
+					Content: "Q: What do you call a fake noodle?",
+				},
+			},
 		}
 		response, err := client.ChatResponse(req)
 		Expect(err).NotTo(HaveOccurred())

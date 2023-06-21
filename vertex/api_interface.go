@@ -1,20 +1,21 @@
 package vertexai
 
 type Request struct {
-	Instances  []Instance  `json:"instances"`
-	Parameters []Parameter `json:"parameters"`
+	Instances  []Instance `json:"instances"`
+	Parameters Parameters `json:"parameters"`
 }
 
 type Instance struct {
-	Content string `json:"content"`
-	Prefix  string `json:"prefix"`
+	Content string `json:"content,omitempty"`
+	Prefix  string `json:"prefix,omitempty"`
+	Text    string `json:"text,omitempty"`
 }
 
-type Parameter struct {
-	Temperature     float64 `json:"temperature"`
-	MaxOutputTokens int     `json:"maxOutputTokens"`
-	TopP            float64 `json:"topP"`
-	TopK            int     `json:"topK"`
+type Parameters struct {
+	Temperature     float64 `json:"temperature,omitempty"`
+	MaxOutputTokens int     `json:"maxOutputTokens,omitempty"`
+	TopP            float64 `json:"topP,omitempty"`
+	TopK            int     `json:"topK,omitempty"`
 }
 
 type Response struct {
@@ -32,7 +33,7 @@ type Response struct {
 				Resource   string `json:"resource"`
 			} `json:"metadata"`
 		} `json:"details"`
-	} `json:"error"`
+	} `json:"error,omitempty"`
 
 	Predictions []struct {
 		Content          string `json:"content"`

@@ -7,10 +7,10 @@ const (
 )
 
 var (
-	DEFAULT_PARAMETER = Parameter{
-		MaxOutputTokens: 100,
-		Temperature:     1,
-		TopP:            0,
+	DEFAULT_PARAMETER = Parameters{
+		MaxOutputTokens: 256,
+		Temperature:     0.2,
+		TopP:            .8,
 		TopK:            40,
 	}
 )

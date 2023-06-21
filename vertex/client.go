@@ -10,7 +10,7 @@ import (
 )
 
 type Client struct {
-	Response    string
+	Response    Response
 	projectID   string
 	modelID     string
 	accessToken string
@@ -50,7 +50,7 @@ func NewClient(config ClientConfig) (*Client, error) {
 	}, nil
 }
 
-func (c Client) FormatVertexAPIURL(modelID string) string {
+func (c *Client) FormatVertexAPIURL(modelID string) string {
 	return fmt.Sprintf("https://%s/v1/projects/%s/locations/us-central1/publishers/google/models/%s:predict", API_ENDPOINT, c.projectID, modelID)
 }
 
@@ -59,10 +59,10 @@ type ChatRequest struct {
 	Prompt     string
 	ModelID    string
 	Instances  []Instance
-	Parameters []Parameter
+	Parameters *Parameters
 }
 
-func (c Client) ChatResponse(req ChatRequest) (string, error) {
+func (c *Client) ChatResponse(req ChatRequest) (string, error) {
 
 	if req.ModelID == "" {
 		req.ModelID = c.modelID
@@ -85,8 +85,8 @@ func (c Client) ChatResponse(req ChatRequest) (string, error) {
 		req.Instances = []Instance{{Prefix: req.Prompt}}
 	}
 
-	if len(req.Parameters) == 0 {
-		req.Parameters = []Parameter{DEFAULT_PARAMETER}
+	if req.Parameters == nil {
+		req.Parameters = &DEFAULT_PARAMETER
 
 		c.debugMsg("parameters is empty, using default parameter")
 	}
@@ -96,7 +96,7 @@ func (c Client) ChatResponse(req ChatRequest) (string, error) {
 
 	request := Request{
 		Instances:  req.Instances,
-		Parameters: req.Parameters,
+		Parameters: *req.Parameters,
 	}
 	c.debugMsgf("vertex request: %+v", request)
 
@@ -110,26 +110,25 @@ func (c Client) ChatResponse(req ChatRequest) (string, error) {
 		return "", err
 	}
 
-	var res Response
-	if err = json.Unmarshal(response.Body(), &res); err != nil {
+	if err = json.Unmarshal(response.Body(), &c.Response); err != nil {
 		log.Err(err).Msg("could not unmarshal response from vertex ai api")
 		return "", err
 	}
 
-	if res.Error.Code != 0 {
-		msg := fmt.Sprintf("%d %s %s", res.Error.Code, res.Error.Status, res.Error.Message)
+	if c.Response.Error.Code != 0 {
+		msg := fmt.Sprintf("%d %s %s", c.Response.Error.Code, c.Response.Error.Status, c.Response.Error.Message)
 		err = errors.New(msg)
 		log.Err(err)
 		return "", err
 	}
 
-	if len(res.Predictions) == 0 {
+	if len(c.Response.Predictions) == 0 {
 		err = errors.New("no predictions returned")
 		log.Err(err)
 		return "", err
 	}
 
-	c.debugMsgf("vertexai response: %+v", res)
+	c.debugMsgf("vertexai response: %+v", c.Response)
 
-	return res.Predictions[0].Content, nil
+	return c.Response.Predictions[0].Content, nil
 }
