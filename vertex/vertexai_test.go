@@ -8,10 +8,12 @@ import (
 
 var _ = Describe("Vertexai", func() {
 	It("can get a comment using vertex AI", func() {
-		client := vertexai.NewClient()
+		client, err := vertexai.NewClient(vertexai.ClientConfig{})
+		Expect(err).NotTo(HaveOccurred())
+
 		req := vertexai.ChatRequest{
-			Prompt:  "I am a bot",
-			ModelID: vertexai.BISON_MODEL_ID,
+			Prompt:  "Who is the best basketball player of all time?",
+			ModelID: vertexai.BISON_CODE_MODEL_ID,
 		}
 		response, err := client.ChatResponse(req)
 		Expect(err).NotTo(HaveOccurred())

@@ -40,7 +40,11 @@ import (
 )
 
 func main() {
-	client := vertexai.NewClient()
+	client, err := vertexai.NewClient(vertexai.ClientConfig{})
+	if err != nil {
+		log.Printf("unable to create vertex client: %s", err.Error())
+		return
+	}
 
 	request := vertexai.ChatRequest{
 		Prompt: "Who do most people consider to be the best basketball player of all time",
@@ -53,5 +57,6 @@ func main() {
 		log.Printf("Vertex Response: %s", response)
 	}
 }
+
 
 ```

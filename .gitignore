@@ -3,6 +3,9 @@
 **/main
 **/rambler-api
 
+bin/example
+
+
 **/.env
 
 **/*.sqlite

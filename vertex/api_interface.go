@@ -17,6 +17,22 @@ type Parameter struct {
 }
 
 type Response struct {
+	Error struct {
+		Code    int    `json:"code"`
+		Message string `json:"message"`
+		Status  string `json:"status"`
+
+		Details []struct {
+			Type     string `json:"@type"`
+			Reason   string `json:"reason"`
+			Domain   string `json:"domain"`
+			Metadata struct {
+				Permission string `json:"permission"`
+				Resource   string `json:"resource"`
+			} `json:"metadata"`
+		} `json:"details"`
+	} `json:"error"`
+
 	Predictions []struct {
 		Content          string `json:"content"`
 		SafetyAttributes struct {

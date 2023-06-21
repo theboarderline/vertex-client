@@ -10,70 +10,90 @@ import (
 )
 
 type Client struct {
-	ProjectID   string
-	AccessToken string
 	Response    string
+	projectID   string
+	accessToken string
+	debug       bool
 	httpClient  *resty.Client
 }
 
-func NewClient(projectIDs ...string) *Client {
+type ClientConfig struct {
+	ProjectID string
+	Debug     bool
+}
 
-	var projectID string
-	if len(projectID) == 0 {
-		projectID = os.Getenv("GCP_PROJECT_ID")
-		if projectID == "" {
-			log.Fatal().Err(errors.New("GCP_PROJECT_ID not set"))
+func NewClient(config ClientConfig) (*Client, error) {
+
+	if config.ProjectID == "" {
+		config.ProjectID = os.Getenv("GCP_PROJECT_ID")
+		if config.ProjectID == "" {
+			err := errors.New("GCP_PROJECT_ID is empty")
+			log.Error().Err(err)
+			return nil, err
 		}
-	} else {
-		projectID = projectIDs[0]
 	}
 
 	accessToken, err := getAccessToken()
 	if err != nil {
-		log.Fatal().Err(err).Msg("could not get access token")
+		log.Error().Err(err)
+		return nil, err
 	}
 
 	return &Client{
-		ProjectID:   projectID,
-		AccessToken: accessToken,
+		debug:       config.Debug,
+		projectID:   config.ProjectID,
+		accessToken: accessToken,
 		httpClient:  resty.New(),
-	}
+	}, nil
 }
 
 func (c Client) FormatVertexAPIURL(modelID string) string {
-	return fmt.Sprintf("https://%s/v1/projects/%s/locations/us-central1/publishers/google/models/%s:predict", API_ENDPOINT, c.ProjectID, modelID)
+	return fmt.Sprintf("https://%s/v1/projects/%s/locations/us-central1/publishers/google/models/%s:predict", API_ENDPOINT, c.projectID, modelID)
 }
 
 type ChatRequest struct {
 	Debug      bool
 	Prompt     string
 	ModelID    string
+	Instances  []Instance
 	Parameters []Parameter
 }
 
 func (c Client) ChatResponse(req ChatRequest) (string, error) {
 
 	if req.ModelID == "" {
-		req.ModelID = BISON_MODEL_ID
+		c.debugMsgf("model id is empty, using default model id: %s", BISON_TEXT_MODEL_ID)
+		req.ModelID = BISON_CODE_MODEL_ID
+	}
+
+	if len(req.Instances) == 0 {
+		if req.Prompt == "" {
+			err := errors.New("instances and prompt cannot be empty")
+			log.Error().Err(err)
+			return "", err
+		}
+
+		c.debugMsg("instances is empty, using prompt as instance")
+		req.Instances = []Instance{{Prefix: req.Prompt}}
 	}
 
 	if len(req.Parameters) == 0 {
 		req.Parameters = []Parameter{DEFAULT_PARAMETER}
+
+		c.debugMsg("parameters is empty, using default parameter")
 	}
+
+	url := c.FormatVertexAPIURL(req.ModelID)
+	c.debugMsgf("vertex api url: %s", url)
 
 	request := Request{
-		Instances:  []Instance{{Prefix: req.Prompt}},
+		Instances:  req.Instances,
 		Parameters: req.Parameters,
 	}
-	url := c.FormatVertexAPIURL(req.ModelID)
-
-	if req.Debug {
-		log.Debug().Msgf("vertexai api url: %s", url)
-		log.Debug().Msgf("vertexai request: %+v", request)
-	}
+	c.debugMsgf("vertex request: %+v", request)
 
 	response, err := c.httpClient.R().
-		SetAuthToken(c.AccessToken).
+		SetAuthToken(c.accessToken).
 		SetBody(request).
 		Post(url)
 
@@ -88,15 +108,20 @@ func (c Client) ChatResponse(req ChatRequest) (string, error) {
 		return "", err
 	}
 
+	if res.Error.Code != 0 {
+		msg := fmt.Sprintf("%d %s %s", res.Error.Code, res.Error.Status, res.Error.Message)
+		err = errors.New(msg)
+		log.Err(err)
+		return "", err
+	}
+
 	if len(res.Predictions) == 0 {
 		err = errors.New("no predictions returned")
 		log.Err(err)
 		return "", err
 	}
 
-	if req.Debug {
-		log.Debug().Msgf("vertexai response: %+v", res)
-	}
+	c.debugMsgf("vertexai response: %+v", res)
 
 	return res.Predictions[0].Content, nil
 }
