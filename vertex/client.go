@@ -12,6 +12,7 @@ import (
 type Client struct {
 	Response    string
 	projectID   string
+	modelID     string
 	accessToken string
 	debug       bool
 	httpClient  *resty.Client
@@ -19,6 +20,7 @@ type Client struct {
 
 type ClientConfig struct {
 	ProjectID string
+	ModelID   string
 	Debug     bool
 }
 
@@ -42,6 +44,7 @@ func NewClient(config ClientConfig) (*Client, error) {
 	return &Client{
 		debug:       config.Debug,
 		projectID:   config.ProjectID,
+		modelID:     config.ModelID,
 		accessToken: accessToken,
 		httpClient:  resty.New(),
 	}, nil
@@ -62,8 +65,13 @@ type ChatRequest struct {
 func (c Client) ChatResponse(req ChatRequest) (string, error) {
 
 	if req.ModelID == "" {
-		req.ModelID = BISON_CODE_MODEL_ID
-		c.debugMsgf("model id is empty, using default model id: %s", req.ModelID)
+		req.ModelID = c.modelID
+		if req.ModelID == "" {
+			req.ModelID = BISON_CODE_MODEL_ID
+			c.debugMsgf("model id is empty, using default model id: %s", req.ModelID)
+		} else {
+			c.debugMsgf("model id is empty, using model id from config: %s", req.ModelID)
+		}
 	}
 
 	if len(req.Instances) == 0 {

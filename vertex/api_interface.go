@@ -6,7 +6,8 @@ type Request struct {
 }
 
 type Instance struct {
-	Prefix string `json:"prefix"`
+	Content string `json:"content"`
+	Prefix  string `json:"prefix"`
 }
 
 type Parameter struct {
