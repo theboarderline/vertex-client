@@ -24,8 +24,8 @@ var _ = Describe("Vertexai", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		req := vertexai.ChatRequest{
-			Prompt:  "Who is the best basketball player of all time?",
 			ModelID: vertexai.BISON_CODE_MODEL_ID,
+			Prompt:  "Who is the best basketball player of all time?",
 		}
 		response, err := client.ChatResponse(req)
 		Expect(err).NotTo(HaveOccurred())
