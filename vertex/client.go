@@ -62,8 +62,8 @@ type ChatRequest struct {
 func (c Client) ChatResponse(req ChatRequest) (string, error) {
 
 	if req.ModelID == "" {
-		c.debugMsgf("model id is empty, using default model id: %s", BISON_TEXT_MODEL_ID)
 		req.ModelID = BISON_CODE_MODEL_ID
+		c.debugMsgf("model id is empty, using default model id: %s", req.ModelID)
 	}
 
 	if len(req.Instances) == 0 {
